@@ -1,0 +1,28 @@
+name: Validate Promotion
+
+on:
+  workflow_call:
+
+jobs:
+  validate:
+    name: Validate Promotion Path
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check source branch
+        run: |
+          BASE="${{ github.base_ref }}"
+          HEAD="${{ github.head_ref }}"
+
+          case "$BASE" in
+            beta) EXPECTED="alpha" ;;
+            rc)   EXPECTED="beta"  ;;
+            main) EXPECTED="rc"    ;;
+            *)    echo "::error::Unexpected target branch: $BASE"; exit 1 ;;
+          esac
+
+          if [[ "$HEAD" != "$EXPECTED" ]]; then
+            echo "::error::Invalid promotion: $HEAD → $BASE. Only $EXPECTED → $BASE is allowed."
+            exit 1
+          fi
+
+          echo "Valid promotion: $HEAD → $BASE"
