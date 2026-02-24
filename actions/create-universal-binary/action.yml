@@ -1,0 +1,22 @@
+name: "Create macOS universal binary"
+description: "Creates a macOS universal binary from amd64 and arm64 binaries using lipo"
+inputs:
+  amd64-binary:
+    description: "Path to the amd64 binary"
+    required: true
+  arm64-binary:
+    description: "Path to the arm64 binary"
+    required: true
+  output:
+    description: "Path for the output universal binary"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Create universal binary
+      shell: bash
+      run: |
+        mkdir -p "$(dirname "${{ inputs.output }}")"
+        lipo -create -output "${{ inputs.output }}" \
+          "${{ inputs.arm64-binary }}" \
+          "${{ inputs.amd64-binary }}"

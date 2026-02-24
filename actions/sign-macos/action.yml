@@ -1,0 +1,35 @@
+name: "Sign macOS binary"
+description: "Imports certificate and codesigns a binary, outputs keychain path for cleanup"
+inputs:
+  binary:
+    description: "Path to the binary to sign"
+    required: true
+  mac_cert_p12:
+    description: "Base64-encoded PKCS#12 certificate"
+    required: true
+  mac_cert_pwd:
+    description: "Password for the PKCS#12 certificate"
+    required: true
+  mac_sign_identity:
+    description: "Signing identity (e.g., Developer ID Application: ...)"
+    required: true
+outputs:
+  keychain:
+    description: "Path to the keychain (for cleanup)"
+    value: ${{ steps.import-cert.outputs.keychain }}
+runs:
+  using: "composite"
+  steps:
+    - name: Import signing certificate
+      id: import-cert
+      uses: cruciblehq/.github/actions/import-mac-cert@main
+      with:
+        mac_cert_p12: ${{ inputs.mac_cert_p12 }}
+        mac_cert_pwd: ${{ inputs.mac_cert_pwd }}
+
+    - name: Sign binary
+      shell: bash
+      run: |
+        codesign --force --timestamp --options runtime \
+          --sign "${{ inputs.mac_sign_identity }}" \
+          "${{ inputs.binary }}"

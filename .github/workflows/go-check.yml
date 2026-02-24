@@ -1,0 +1,32 @@
+name: Go Check
+
+on:
+    workflow_call:
+        inputs:
+            go-version:
+                required: false
+                type: string
+                default: "1.25.x"
+            coverage-threshold:
+                required: false
+                type: number
+                default: 50
+
+jobs:
+    test:
+        name: Test
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-go@v5
+              with:
+                  go-version: ${{ inputs.go-version }}
+
+            - name: Verify Go modules
+              uses: cruciblehq/.github/actions/go-verify-modules@main
+
+            - name: Run Go tests and coverage
+              uses: cruciblehq/.github/actions/go-test-coverage@main
+              with:
+                  coverage-threshold: ${{ inputs.coverage-threshold }}

@@ -1,0 +1,42 @@
+name: "Notarize macOS binary"
+description: "Signs a binary and submits it for Apple notarization"
+inputs:
+  binary:
+    description: "Path to the binary to notarize"
+    required: true
+  mac_sign_identity:
+    description: "Signing identity"
+    required: true
+  apple_id:
+    description: "Apple ID for notarization"
+    required: true
+  apple_team_id:
+    description: "Apple Team ID"
+    required: true
+  apple_app_pwd:
+    description: "App-specific password for notarization"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Sign binary
+      shell: bash
+      run: |
+        codesign --force --timestamp --options runtime \
+          --sign "${{ inputs.mac_sign_identity }}" \
+          "${{ inputs.binary }}"
+
+    - name: Notarize binary
+      shell: bash
+      run: |
+        BINARY="${{ inputs.binary }}"
+        ZIP_PATH="${BINARY}.zip"
+        zip -j "$ZIP_PATH" "$BINARY"
+
+        xcrun notarytool submit "$ZIP_PATH" \
+          --apple-id "${{ inputs.apple_id }}" \
+          --team-id "${{ inputs.apple_team_id }}" \
+          --password "${{ inputs.apple_app_pwd }}" \
+          --wait
+
+        rm -f "$ZIP_PATH"
