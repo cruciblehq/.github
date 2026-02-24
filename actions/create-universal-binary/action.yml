@@ -15,8 +15,10 @@ runs:
   steps:
     - name: Create universal binary
       shell: bash
+      env:
+        AMD64_BINARY: ${{ inputs.amd64-binary }}
+        ARM64_BINARY: ${{ inputs.arm64-binary }}
+        OUTPUT: ${{ inputs.output }}
       run: |
-        mkdir -p "$(dirname "${{ inputs.output }}")"
-        lipo -create -output "${{ inputs.output }}" \
-          "${{ inputs.arm64-binary }}" \
-          "${{ inputs.amd64-binary }}"
+        mkdir -p "$(dirname "$OUTPUT")"
+        lipo -create -output "$OUTPUT" "$ARM64_BINARY" "$AMD64_BINARY"

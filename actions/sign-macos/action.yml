@@ -29,7 +29,10 @@ runs:
 
     - name: Sign binary
       shell: bash
+      env:
+        MAC_SIGN_IDENTITY: ${{ inputs.mac_sign_identity }}
+        BINARY: ${{ inputs.binary }}
       run: |
         codesign --force --timestamp --options runtime \
-          --sign "${{ inputs.mac_sign_identity }}" \
-          "${{ inputs.binary }}"
+          --sign "$MAC_SIGN_IDENTITY" \
+          "$BINARY"

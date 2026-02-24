@@ -21,22 +21,29 @@ runs:
   steps:
     - name: Sign binary
       shell: bash
+      env:
+        MAC_SIGN_IDENTITY: ${{ inputs.mac_sign_identity }}
+        BINARY: ${{ inputs.binary }}
       run: |
         codesign --force --timestamp --options runtime \
-          --sign "${{ inputs.mac_sign_identity }}" \
-          "${{ inputs.binary }}"
+          --sign "$MAC_SIGN_IDENTITY" \
+          "$BINARY"
 
     - name: Notarize binary
       shell: bash
+      env:
+        BINARY: ${{ inputs.binary }}
+        APPLE_ID: ${{ inputs.apple_id }}
+        APPLE_TEAM_ID: ${{ inputs.apple_team_id }}
+        APPLE_APP_PWD: ${{ inputs.apple_app_pwd }}
       run: |
-        BINARY="${{ inputs.binary }}"
         ZIP_PATH="${BINARY}.zip"
         zip -j "$ZIP_PATH" "$BINARY"
 
         xcrun notarytool submit "$ZIP_PATH" \
-          --apple-id "${{ inputs.apple_id }}" \
-          --team-id "${{ inputs.apple_team_id }}" \
-          --password "${{ inputs.apple_app_pwd }}" \
+          --apple-id "$APPLE_ID" \
+          --team-id "$APPLE_TEAM_ID" \
+          --password "$APPLE_APP_PWD" \
           --wait
 
         rm -f "$ZIP_PATH"

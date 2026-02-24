@@ -32,9 +32,11 @@ runs:
       shell: bash
 
     - name: Check coverage threshold
+      env:
+        THRESHOLD: ${{ inputs.coverage-threshold }}
       run: |
-        if (( $(echo "$COVERAGE < ${{ inputs.coverage-threshold }}" | bc -l) )); then
-          echo "::error::Coverage ${COVERAGE}% is below ${{ inputs.coverage-threshold }}% threshold"
+        if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+          echo "::error::Coverage ${COVERAGE}% is below ${THRESHOLD}% threshold"
           exit 1
         fi
       shell: bash

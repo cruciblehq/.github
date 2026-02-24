@@ -29,11 +29,12 @@ runs:
         GIT_AUTHOR_EMAIL: "github-actions[bot]@users.noreply.github.com"
         GIT_COMMITTER_NAME: "github-actions[bot]"
         GIT_COMMITTER_EMAIL: "github-actions[bot]@users.noreply.github.com"
+        EXTRA_PLUGINS: ${{ inputs.extra-plugins }}
       shell: bash
       run: |
         EXTRA_PKGS=""
-        if [ -n "${{ inputs.extra-plugins }}" ]; then
-          for pkg in ${{ inputs.extra-plugins }}; do
+        if [ -n "$EXTRA_PLUGINS" ]; then
+          for pkg in $EXTRA_PLUGINS; do
             EXTRA_PKGS="$EXTRA_PKGS -p $pkg"
           done
         fi
